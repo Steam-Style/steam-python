@@ -1,0 +1,9 @@
+{
+  "workbench.editor.showTabIndex": false,
+  "workbench.editor.highlightModifiedTabs": false,
+  "workbench.editor.customLabels.enabled": true,
+  "workbench.editor.customLabels.patterns": {
+    "**/__init__.py": "${dirname}"
+  },
+  "python.analysis.autoImportCompletions": true
+}
