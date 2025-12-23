@@ -1,4 +1,4 @@
-# Steam Client
+# Steam Python
 
 ![Static Badge](https://img.shields.io/badge/Docs-brightgreen?link=https%3A%2F%2Fpython.steam.style)
 
