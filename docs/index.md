@@ -2,6 +2,10 @@
 
 Welcome to the documentation for the Steam Python project. This library provides a fast and lightweight Python interface for interacting with Steam.
 
+!!! warning
+
+    `steam-python` is currently under heavy development and is not yet ready for public use.
+
 ## Getting Started
 
 To get started, check out the [API References](references.md) to see the available classes and methods.
