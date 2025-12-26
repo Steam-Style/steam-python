@@ -28,7 +28,7 @@ To interact with Steam you must first connect to a Connection Manager Server and
 
 ```python
 import asyncio
-from client import SteamClient
+from steam.client import SteamClient
 
 async def main():
     client = SteamClient()
