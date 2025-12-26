@@ -8,12 +8,12 @@ import logging
 from typing import Any, Callable
 
 
-def remove_readonly(function: Callable[[str], None], path: str, _: Any) -> None:
+def remove_readonly(function: Callable[[str], None], path: str, _: Any):
     os.chmod(path, stat.S_IWRITE)
     function(path)
 
 
-def fetch_protobufs() -> None:
+def fetch_protobufs():
     if os.path.exists("temp_protobufs_repo"):
         shutil.rmtree("temp_protobufs_repo", onexc=remove_readonly)
 
@@ -37,7 +37,7 @@ def fetch_protobufs() -> None:
     shutil.rmtree("temp_protobufs_repo", onexc=remove_readonly)
 
 
-def fix_protobufs() -> None:
+def fix_protobufs():
     protobufs_directory = "protobufs"
     files = os.listdir(protobufs_directory)
     renames: dict[str, str] = {}
@@ -80,9 +80,9 @@ def fix_protobufs() -> None:
                 f.write(new_content)
 
 
-def compile_protobufs() -> None:
+def compile_protobufs():
     source_protobufs_directory = os.path.join(
-        "src", "utils", "protobuf_manager", "protobufs")
+        "steam", "utils", "protobuf_manager", "protobufs")
 
     if os.path.exists(source_protobufs_directory):
         shutil.rmtree(source_protobufs_directory)
@@ -103,9 +103,9 @@ def compile_protobufs() -> None:
     subprocess.run(cmd, check=True)
 
 
-def generate_emsg_enum() -> None:
+def generate_emsg_enum():
     input_file = os.path.join("protobufs", "enums_clientserver.proto")
-    output_file = os.path.join("src", "enums", "emsg.py")
+    output_file = os.path.join("steam", "enums", "emsg.py")
 
     if not os.path.exists(input_file):
         logging.warning(f"{input_file} not found. Skipping EMsg generation.")
