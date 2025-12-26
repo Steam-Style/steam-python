@@ -15,7 +15,7 @@ To get started, check out the [API References](references.md) to see the availab
 You can either install the library through PyPI or our official GitHub repository.
 
 ```bash
-pip install steam-python
+pip install steam-python # Coming soon
 ```
 
 ```
@@ -27,10 +27,23 @@ pip install git+https://github.com/Steam-Style/steam-python
 To interact with Steam you must first connect to a Connection Manager Server and then log in.
 
 ```python
-from steam.client import SteamClient
+import asyncio
+from client import SteamClient
 
-client = SteamClient()
-client.connect()
-client.anonymous_login()
-# ...
+async def main():
+    client = SteamClient()
+
+    # Connect to Steam
+    await client.connect()
+
+    # Login anonymously
+    await client.anonymous_login()
+
+    # ...
+
+    # Disconnect
+    await client.disconnect()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
