@@ -1,9 +1,25 @@
 import struct
 import io
-from typing import Optional, Union
+from typing import Union, Any, TYPE_CHECKING
 from steam.enums.emsgs import EMsg
 from .protobuf_manager import ProtobufManager
 from .structs import MsgHdr
+
+
+if TYPE_CHECKING:
+    class CMsgProtoBufHeader:
+        steamid: int
+        def ParseFromString(self, data: bytes) -> None: ...
+
+    class CMsgMulti:
+        size_unzipped: int
+        message_body: bytes
+        def ParseFromString(self, data: bytes) -> None: ...
+else:
+    from steam.utils.protobuf_manager.protobufs.steammessages_base_pb2 import CMsgProtoBufHeader, CMsgMulti
+
+import gzip
+import zipfile
 
 
 class SteamPacket:
@@ -12,20 +28,32 @@ class SteamPacket:
     """
 
     def __init__(self, emsg: Union[EMsg, int], data: bytes, is_protobuf: bool):
+        """
+        Initializes a SteamPacket instance.
+
+        Args:
+            emsg: The EMsg identifier.
+            data: The raw packet data.
+            is_protobuf: Whether the packet is a Protobuf packet.
+        """
         self.emsg: Union[EMsg, int] = emsg
         self.is_protobuf: bool = is_protobuf
-        self.header: Optional[MsgHdr] = None
-        self.body: Optional[bytes] = None
+        self.header: Union[MsgHdr, CMsgProtoBufHeader, None] = None
+        self.body: Union[bytes, Any, None] = None
 
-        if is_protobuf and isinstance(emsg, EMsg):
+        if self.is_protobuf and isinstance(emsg, EMsg):
             stream = io.BytesIO(data)
             header_len = struct.unpack("<I", stream.read(4))[0]
-            stream.read(header_len)  # TODO: Parse Protobuf Header
+            header_data = stream.read(header_len)
+
+            self.header = CMsgProtoBufHeader()
+            self.header.ParseFromString(header_data)
+
             proto_class = ProtobufManager.get_protobuf(emsg)
 
             if proto_class:
-                self.body = proto_class()  # type: ignore
-                self.body.ParseFromString(stream.read())  # type: ignore
+                self.body = proto_class()
+                self.body.ParseFromString(stream.read())
             else:
                 self.body = stream.read()
         else:
@@ -57,3 +85,43 @@ class SteamPacket:
             emsg = emsg_id
 
         return cls(emsg, data[4:], is_protobuf)
+
+    def unpack_multi(self) -> list["SteamPacket"]:
+        """
+        Unpacks a Multi packet into a list of SteamPackets.
+
+        Returns:
+            A list of SteamPacket instances contained within the Multi packet.
+        """
+        if self.emsg != EMsg.Multi:
+            return []
+
+        multi: Any = CMsgMulti()
+
+        if isinstance(self.body, bytes):
+            multi.ParseFromString(self.body)
+        elif self.body:
+            multi = self.body
+        else:
+            return []
+
+        if multi.size_unzipped:
+            if multi.message_body.startswith(b'PK'):
+                with zipfile.ZipFile(io.BytesIO(multi.message_body)) as zf:
+                    data = zf.read(zf.namelist()[0])
+            else:
+                data = gzip.decompress(multi.message_body)
+        else:
+            data = multi.message_body
+
+        packets: list["SteamPacket"] = []
+        offset = 0
+
+        while offset < len(data):
+            msg_len = struct.unpack_from("<I", data, offset)[0]
+            offset += 4
+            msg_data = data[offset: offset + msg_len]
+            offset += msg_len
+            packets.append(SteamPacket.parse(msg_data))
+
+        return packets
