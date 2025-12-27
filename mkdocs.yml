@@ -33,7 +33,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [steam]
+          paths: [src/steam]
           options:
             show_root_heading: true
 
