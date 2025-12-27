@@ -30,6 +30,9 @@ dev = [
     "pytest-asyncio",
 ]
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [project.urls]
 "Homepage" = "https://python.steam.style"
 "Bug Tracker" = "https://github.com/Steam-Style/steam/issues"
