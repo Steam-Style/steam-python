@@ -22,9 +22,9 @@ pip install steam-python # Coming soon
 pip install git+https://github.com/Steam-Style/steam-python
 ```
 
-## Usage
+## Usage Example
 
-To interact with Steam you must first connect to a Connection Manager Server and then log in.
+To interact with Steam you must first connect to a Connection Manager Server and then log in. Below is an example for retrieving app information for Steam applications.
 
 ```python
 import asyncio
@@ -39,7 +39,12 @@ async def main():
     # Login anonymously
     await client.anonymous_login()
 
-    # ...
+    # Get product info for TF2, Dota 2, and CS2
+    product_info = await client.get_product_info([440, 570, 730])
+
+    if product_info:
+        for app_id, parsed_vdf in product_info.items():
+            print(app_id, parsed_vdf["appinfo"]["common"]["name"])
 
     # Disconnect
     await client.disconnect()
