@@ -17,6 +17,7 @@ dependencies = [
     "requests",
     "aiohttp",
     "pycryptodome",
+    "protobuf",
 ]
 
 [project.optional-dependencies]
