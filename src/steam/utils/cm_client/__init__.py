@@ -210,10 +210,12 @@ class CMClient(EventEmitter):
 
         if self._loop_task:
             self._loop_task.cancel()
+
             try:
                 await self._loop_task
             except asyncio.CancelledError:
                 pass
+
             self._loop_task = None
 
         if self.writer:
@@ -298,7 +300,7 @@ class CMClient(EventEmitter):
         """
         if not self.reader:
             self._log.warning("Not connected")
-            return
+            return None
 
         try:
             length_data = await self.reader.readexactly(4)
@@ -307,7 +309,7 @@ class CMClient(EventEmitter):
 
             if magic_header != MAGIC_HEADER.encode():
                 self._log.warning("Invalid magic header, disconnecting")
-                return
+                return None
 
             message = await self.reader.readexactly(length)
 
@@ -322,7 +324,7 @@ class CMClient(EventEmitter):
 
         except asyncio.IncompleteReadError:
             self._log.warning("Server closed connection")
-            return
+            return None
         except Exception as e:
             self._log.error(f"Error listening: {e}")
-            return
+            return None
