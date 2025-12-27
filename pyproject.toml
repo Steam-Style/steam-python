@@ -16,6 +16,7 @@ classifiers = [
 dependencies = [
     "requests",
     "aiohttp",
+    "pycryptodome",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,9 @@ dev = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "grpcio-tools",
+    "pylint",
+    "pytest",
+    "pytest-asyncio",
 ]
 
 [tool.setuptools.packages.find]
@@ -32,3 +36,12 @@ where = ["steam"]
 [project.urls]
 "Homepage" = "https://python.steam.style"
 "Bug Tracker" = "https://github.com/Steam-Style/steam/issues"
+
+[tool.pylint.main]
+ignore = ["CVS", "protobufs", "enums"]
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "unused-argument",
+]
