@@ -2,3 +2,6 @@ mkdocs
 mkdocs-material
 mkdocstrings[python]
 grpcio-tools
+pytest
+pytest-asyncio
+pylint
