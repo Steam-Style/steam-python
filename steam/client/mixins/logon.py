@@ -1,0 +1,205 @@
+import logging
+import asyncio
+from typing import Optional, Any, Protocol, TYPE_CHECKING
+from steam.enums.emsgs import EMsg
+from steam.enums.common import EResult
+from steam.utils.protobuf_manager import ProtobufManager
+from steam.utils.packet import SteamPacket
+
+if TYPE_CHECKING:
+    class CMsgProtoBufHeader:
+        steamid: int
+        def ParseFromString(
+            self, data: bytes) -> None: ...  # pylint: disable=unused-argument
+
+    class CMsgMulti:
+        size_unzipped: int
+        message_body: bytes
+        def ParseFromString(
+            self, data: bytes) -> None: ...  # pylint: disable=unused-argument
+
+    class CMsgClientHeartBeat:
+        ...
+else:
+    from steam.utils.protobuf_manager.protobufs.steammessages_base_pb2 import CMsgMulti, CMsgProtoBufHeader
+    from steam.utils.protobuf_manager.protobufs.steammessages_clientserver_login_pb2 import CMsgClientHeartBeat
+
+
+class LogonMixin:
+    """
+    Mixin providing logon functionality for the Steam client.
+    """
+
+    _log: logging.Logger = logging.getLogger(__name__)
+    _heartbeat_task: Optional[asyncio.Task[None]] = None
+
+    if TYPE_CHECKING:
+        connected: bool
+        machine_id: bytes
+        logged_in: bool
+        steam_id: int
+
+        class CMsgMultiProto(Protocol):
+            size_unzipped: int
+            message_body: bytes
+            def ParseFromString(self, data: bytes) -> Any: ...
+
+        async def send_protobuf_message(
+            self, emsg: EMsg, message: Any, steam_id: Optional[int] = None) -> None: ...
+
+        async def wait_for(
+            self, event: Any, timeout: Optional[float] = None, check: Optional[Any] = None) -> Any: ...
+
+    async def login(self, username: Optional[str] = None, password: Optional[str] = None, auth_code: Optional[str] = None, two_factor_code: Optional[str] = None) -> EResult:
+        """
+        Logs in the client with the provided credentials or anonymously if none are
+            provided
+
+        Args:
+            username: The username for login.
+            password: The password for login.
+            auth_code: The Steam Guard email code.
+            two_factor_code: The Steam Guard mobile 2FA code.
+
+        Returns:
+            An EResult indicating the outcome of the login attempt.
+        """
+        if username is None and password is None:
+            return await self.anonymous_login()
+
+        if not self.connected:
+            self._log.error("The client is not connected")
+            return EResult.NoConnection
+
+        proto_class = ProtobufManager.get_protobuf(EMsg.ClientLogon)
+
+        if proto_class is None:
+            self._log.error("Failed to get ClientLogon protobuf")
+            return EResult.Fail
+
+        message: Any = proto_class()
+        message.protocol_version = 65580
+        message.client_package_version = 1561159470
+        message.client_os_type = 16
+        message.client_language = "english"
+        message.machine_id = self.machine_id
+        message.account_name = username
+        message.password = password
+
+        if auth_code:
+            message.auth_code = auth_code
+
+        if two_factor_code:
+            message.two_factor_code = two_factor_code
+
+        steam_id = 76561197960265728
+        await self.send_protobuf_message(EMsg.ClientLogon, message, steam_id=steam_id)
+
+        return await self._wait_for_logon_result()
+
+    async def anonymous_login(self) -> EResult:
+        """
+        Logs in the client without credentials.
+
+        Returns:
+            An EResult indicating the outcome of the login attempt.
+        """
+        if not self.connected:
+            self._log.error("The client is not connected")
+            return EResult.NoConnection
+
+        proto_class = ProtobufManager.get_protobuf(EMsg.ClientLogon)
+
+        if proto_class is None:
+            self._log.error("Failed to get ClientLogon protobuf")
+            return EResult.Fail
+
+        message: Any = proto_class()
+        message.protocol_version = 65575
+        message.client_package_version = 1561159470
+        message.client_os_type = 16
+        message.client_language = "english"
+        message.machine_id = self.machine_id
+
+        steam_id = 117093590311632896
+        await self.send_protobuf_message(EMsg.ClientLogon, message, steam_id=steam_id)
+
+        return await self._wait_for_logon_result()
+
+    async def logout(self) -> EResult:
+        """
+        Logs out the client.
+
+        Returns:
+            An EResult indicating the outcome of the logout attempt.
+        """
+        if not self.logged_in:
+            self._log.error("The client is not logged in")
+            return EResult.InvalidState
+
+        proto_class = ProtobufManager.get_protobuf(EMsg.ClientLogOff)
+
+        if proto_class is None:
+            self._log.error("Failed to get ClientLogOff protobuf")
+            return EResult.Fail
+
+        message: Any = proto_class()
+        await self.send_protobuf_message(EMsg.ClientLogOff, message)
+
+        self.logged_in = False
+        self._stop_heartbeat()
+        return EResult.OK
+
+    async def _wait_for_logon_result(self) -> EResult:
+        try:
+            packet = await self.wait_for(EMsg.ClientLogOnResponse, timeout=20)
+            return self._handle_logon_response(packet)
+        except asyncio.TimeoutError:
+            self._log.error("Timed out waiting for logon response")
+            return EResult.Fail
+
+    def _handle_logon_response(self, packet: SteamPacket) -> EResult:
+        if packet.body and not isinstance(packet.body, (bytes, bytearray, memoryview)) and hasattr(packet.body, "eresult"):
+            result = EResult(packet.body.eresult)
+            self._log.info(f"Login result: {result}")
+
+            if result == EResult.OK:
+                self.logged_in = True
+                if packet.header and isinstance(packet.header, CMsgProtoBufHeader):
+                    self.steam_id = packet.header.steamid  # type: ignore
+                    self._log.info(f"Logged in with SteamID: {self.steam_id}")
+
+                self._start_heartbeat()
+
+            return result
+
+        return EResult.Fail
+
+    def _start_heartbeat(self):
+        if self._heartbeat_task and not self._heartbeat_task.done():
+            return
+
+        self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
+        self._log.debug("Heartbeat task started")
+
+    def _stop_heartbeat(self):
+        if self._heartbeat_task:
+            self._heartbeat_task.cancel()
+            self._heartbeat_task = None
+            self._log.debug("Heartbeat task stopped")
+
+    async def _heartbeat_loop(self):
+        interval = 30
+
+        while self.connected and self.logged_in:
+            try:
+                heartbeat: Any = CMsgClientHeartBeat()
+                await self.send_protobuf_message(EMsg.ClientHeartBeat, heartbeat)
+                await asyncio.sleep(interval)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                self._log.error(f"Error in heartbeat loop: {e}")
+                await asyncio.sleep(interval)
+
+        return None
