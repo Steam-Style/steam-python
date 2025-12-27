@@ -8,7 +8,7 @@ Welcome to the documentation for the Steam Python project. This library provides
 
 ## Getting Started
 
-To get started, check out the [API References](references.md) to see the available classes and methods.
+To get started, check out the [API Reference](reference.md) to see the available classes and methods.
 
 ## Installation
 

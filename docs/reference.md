@@ -1,4 +1,4 @@
-# API References
+# API Reference
 
 ::: client.SteamClient
 ::: utils.cm_client.CMClient
