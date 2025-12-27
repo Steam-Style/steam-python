@@ -2,7 +2,10 @@ import importlib
 import pkgutil
 import fnmatch
 import os
+import sys
+from typing import Optional, Type
 from steam.enums.emsgs import EMsg
+from google.protobuf.message import Message
 
 PROTOBUF_MASK = 0x80000000
 
@@ -16,9 +19,13 @@ protobuf_overrides = {
     EMsg.ClientChatOfflineMessageNotification: "cmsgclientofflinemessagenotification",
 }
 
-cmsg_lookup: dict[str, object] = dict()
+cmsg_lookup: dict[str, Type[Message]] = dict()
+protobufs_path = os.path.join(os.path.dirname(__file__), "protobufs")
 
-for module_info in pkgutil.iter_modules([os.path.join(os.path.dirname(__file__), "protobufs")]):
+if protobufs_path not in sys.path:
+    sys.path.append(protobufs_path)
+
+for module_info in pkgutil.iter_modules([protobufs_path]):
     if not module_info.name.endswith("_pb2"):
         continue
 
@@ -40,7 +47,7 @@ class ProtobufManager:
     """
 
     @staticmethod
-    def get_protobuf(emsg: EMsg):
+    def get_protobuf(emsg: EMsg) -> Optional[Type[Message]]:
         """
         Returns the protobuf corresponding to the given EMsg.
         """
@@ -48,7 +55,16 @@ class ProtobufManager:
             return cmsg_lookup.get(protobuf_overrides[emsg])
 
         lookup_key = f"cmsg{emsg.name.lower()}"
-        return cmsg_lookup.get(lookup_key)
+        proto = cmsg_lookup.get(lookup_key)
+
+        if proto:
+            return proto
+
+        if "_Deprecated" in emsg.name:
+            lookup_key = f"cmsg{emsg.name.replace('_Deprecated', '').lower()}"
+            return cmsg_lookup.get(lookup_key)
+
+        return None
 
     @staticmethod
     def is_protobuf(emsg_id: int) -> bool:
