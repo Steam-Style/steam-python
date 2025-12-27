@@ -6,9 +6,8 @@ repo_url: https://github.com/Steam-Style/steam-python
 
 theme:
   name: material
-  # TODO: Update logo and favicon
-  favicon: assets/steam.svg
-  logo: assets/steam.svg
+  favicon: assets/logo.svg
+  logo: assets/logo.svg
   icon:
     repo: fontawesome/brands/github
   palette:
