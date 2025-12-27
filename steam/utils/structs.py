@@ -4,6 +4,12 @@ from typing import Optional
 
 class StructBase:
     def pack(self) -> bytes:
+        """
+        Packs the struct into bytes.
+
+        Returns:
+            The packed bytes.
+        """
         raise NotImplementedError
 
 
@@ -15,6 +21,12 @@ class MsgHdr(StructBase):
     SIZE = struct.calcsize(FMT)
 
     def __init__(self, data: Optional[bytes] = None):
+        """
+        Initializes the MsgHdr.
+
+        Args:
+            data: Optional bytes to unpack.
+        """
         if data:
             self.emsg, self.target_job_id, self.source_job_id = struct.unpack(
                 self.FMT, data)
@@ -24,6 +36,12 @@ class MsgHdr(StructBase):
             self.source_job_id = 0xFFFFFFFFFFFFFFFF
 
     def pack(self) -> bytes:
+        """
+        Packs the MsgHdr into bytes.
+
+        Returns:
+            The packed bytes.
+        """
         return struct.pack(self.FMT, self.emsg, self.target_job_id, self.source_job_id)
 
 
@@ -34,6 +52,12 @@ class MsgChannelEncryptRequest(StructBase):
     FMT = "<II"
 
     def __init__(self, data: bytes):
+        """
+        Initializes the MsgChannelEncryptRequest.
+
+        Args:
+            data: The bytes to unpack.
+        """
         struct_data = struct.unpack_from(self.FMT, data)
         self.protocol_version: int = struct_data[0]
         self.universe: int = struct_data[1]
@@ -47,10 +71,19 @@ class MsgChannelEncryptResponse(StructBase):
     FMT = "<II"
 
     def __init__(self):
+        """
+        Initializes the MsgChannelEncryptResponse.
+        """
         self.protocol_version = 1
         self.key_size = 128
         self.key = b""
         self.crc = 0
 
     def pack(self) -> bytes:
+        """
+        Packs the MsgChannelEncryptResponse into bytes.
+
+        Returns:
+            The packed bytes.
+        """
         return struct.pack(self.FMT, self.protocol_version, self.key_size) + self.key + struct.pack("<I", self.crc)
