@@ -82,7 +82,7 @@ def fix_protobufs():
 
 def compile_protobufs():
     source_protobufs_directory = os.path.join(
-        "steam", "utils", "protobuf_manager", "protobufs")
+        "src", "steam", "utils", "protobuf_manager", "protobufs")
 
     if os.path.exists(source_protobufs_directory):
         shutil.rmtree(source_protobufs_directory)
@@ -105,7 +105,7 @@ def compile_protobufs():
 
 def generate_emsg_enum():
     input_file = os.path.join("protobufs", "enums_clientserver.proto")
-    output_file = os.path.join("steam", "enums", "emsg.py")
+    output_file = os.path.join("src", "steam", "enums", "emsg.py")
 
     if not os.path.exists(input_file):
         logging.warning(f"{input_file} not found. Skipping EMsg generation.")
