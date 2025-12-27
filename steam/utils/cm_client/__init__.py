@@ -1,12 +1,14 @@
-import binascii
 import aiohttp
 import asyncio
 import time
 import logging
-from typing import Optional
+import struct
+import random
+from typing import Optional, Any, cast
+from google.protobuf.message import Message
 from steam.enums.emsgs import EMsg
-from steam.utils.structs import MsgChannelEncryptRequest, MsgChannelEncryptResponse, MsgHdr
-from steam.utils.packet import SteamPacket
+from steam.utils.protobuf_manager import ProtobufManager
+from steam.utils.protobuf_manager.protobufs.steammessages_base_pb2 import CMsgProtoBufHeader  # type: ignore
 from steam.enums.common import EResult
 from .constants import (
     STEAM_CM_LIST_URL,
@@ -14,17 +16,29 @@ from .constants import (
     CONNECTION_TIMEOUT,
     MAX_CONNECTIONS
 )
-from steam.utils.crypto import generate_session_key
+from steam.utils.crypto import (
+    symmetric_encrypt,
+    symmetric_encrypt_HMAC,
+    symmetric_decrypt,
+    symmetric_decrypt_HMAC
+)
+from steam.utils.handshake import perform_handshake
+from steam.utils.event_emitter import EventEmitter
+from steam.utils.packet import SteamPacket
 
 
-class CMClient:
+class CMClient(EventEmitter):
     """
     Manages connections to Steam Connection Manager servers.
     """
 
-    __LOG: logging.Logger = logging.getLogger(__name__)
+    _log: logging.Logger = logging.getLogger(__name__)
 
     def __init__(self):
+        """
+        Initializes the CMClient.
+        """
+        super().__init__()
         self.session: Optional[aiohttp.ClientSession] = None
         self.server_list: list[tuple[str, int]] = []
         self.fastest_server: tuple[Optional[tuple[str, int]], float] = (
@@ -32,8 +46,13 @@ class CMClient:
         self.reader: Optional[asyncio.StreamReader] = None
         self.writer: Optional[asyncio.StreamWriter] = None
         self.connected: bool = False
+        self.session_key: Optional[bytes] = None
+        self.hmac_secret: Optional[bytes] = None
+        self.steam_id: int = 0
+        self.session_id: int = random.randint(1, 2**31 - 1)
+        self._loop_task: Optional[asyncio.Task[Any]] = None
 
-    async def __test_server_latency(self, host: str, port: int) -> float:
+    async def _test_server_latency(self, host: str, port: int) -> float:
         try:
             start_time = time.time()
             future = asyncio.open_connection(host, port)
@@ -48,12 +67,12 @@ class CMClient:
         except (asyncio.TimeoutError, OSError, ValueError):
             return float("inf")
 
-    async def __find_fastest_server(self) -> tuple[Optional[tuple[str, int]], float]:
+    async def _find_fastest_server(self) -> tuple[Optional[tuple[str, int]], float]:
         semaphore = asyncio.Semaphore(MAX_CONNECTIONS)
 
         async def bounded_test(host: str, port: int) -> float:
             async with semaphore:
-                return await self.__test_server_latency(host, port)
+                return await self._test_server_latency(host, port)
 
         tasks = [bounded_test(host, port) for (host, port) in self.server_list]
         latencies = await asyncio.gather(*tasks)
@@ -91,7 +110,7 @@ class CMClient:
 
                 return self.server_list
         except aiohttp.ClientError as e:
-            self.__LOG.error(f"Failed to fetch server list: {e}")
+            self._log.error(f"Failed to fetch server list: {e}")
             return []
 
     async def connect(self, retry: bool = False, use_fastest: bool = False) -> EResult:
@@ -104,7 +123,7 @@ class CMClient:
                 This adds initial overhead but may improve connection speed.
 
         Returns:
-            True if connection is successful, False otherwise.
+            EResult.OK if connection is successful, EResult.ConnectFailed otherwise.
         """
         while True:
             server = await self._select_server(use_fastest)
@@ -117,7 +136,7 @@ class CMClient:
             try:
                 self.reader, self.writer = await asyncio.open_connection(host, port)
             except (OSError, ValueError, TimeoutError) as e:
-                self.__LOG.error(
+                self._log.error(
                     f"Failed to connect to server {host}:{port}: {e}")
 
                 if not retry:
@@ -127,6 +146,7 @@ class CMClient:
 
             if await self._handshake():
                 self.connected = True
+                self._loop_task = asyncio.create_task(self._read_loop())
                 return EResult.OK
 
             await self.disconnect()
@@ -134,7 +154,28 @@ class CMClient:
             if not retry:
                 return EResult.ConnectFailed
 
-            self.__LOG.info("Retrying connection...")
+            self._log.info("Retrying connection...")
+
+    async def _read_loop(self):
+        while self.connected:
+            message = await self.listen()
+
+            if message:
+                try:
+                    packet = SteamPacket.parse(message)
+                    if packet.emsg == EMsg.Multi:
+                        for sub_packet in packet.unpack_multi():
+                            self.emit(sub_packet.emsg, sub_packet)
+                    else:
+                        self.emit(packet.emsg, packet)
+                except Exception as e:
+                    self._log.error(f"Error parsing packet: {e}")
+            else:
+                if self.connected:
+                    self._log.warning("Connection lost in read loop")
+                    await self.disconnect()
+
+                break
 
     async def _select_server(self, use_fastest: bool) -> Optional[tuple[str, int]]:
         if not self.server_list:
@@ -142,77 +183,39 @@ class CMClient:
 
         if use_fastest or self.fastest_server[0] is not None:
             if self.fastest_server[0] is None:
-                await self.__find_fastest_server()
+                await self._find_fastest_server()
 
             return self.fastest_server[0]
 
         for host, port in self.server_list:
-            if await self.__test_server_latency(host, port) < float("inf"):
+            if await self._test_server_latency(host, port) < float("inf"):
                 return (host, port)
 
         await self.get_server_list()
 
         for host, port in self.server_list:
-            if await self.__test_server_latency(host, port) < float("inf"):
+            if await self._test_server_latency(host, port) < float("inf"):
                 return (host, port)
 
         return None
 
     async def _handshake(self) -> bool:
-        if self.writer is None:
-            return False
-
-        message = await self.listen()
-
-        if message is None:
-            self.__LOG.error("No response received after connecting")
-            return False
-
-        packet = SteamPacket.parse(message)
-        self.__LOG.info(f"Received: {packet.emsg}")
-
-        if packet.emsg != EMsg.ChannelEncryptRequest or packet.body is None:
-            self.__LOG.error("Did not receive ChannelEncryptRequest")
-            return False
-
-        request = MsgChannelEncryptRequest(packet.body)
-        _, encrypted_key = generate_session_key(request.challenge)
-        crc = binascii.crc32(encrypted_key) & 0xffffffff
-
-        response = MsgChannelEncryptResponse()
-        response.key_size = len(encrypted_key)
-        response.key = encrypted_key
-        response.crc = crc
-
-        header = MsgHdr()
-        header.emsg = EMsg.ChannelEncryptResponse
-        payload = header.pack() + response.pack()
-
-        self.writer.write(len(payload).to_bytes(
-            4, byteorder="little") + MAGIC_HEADER.encode() + payload)
-
-        await self.writer.drain()
-        message = await self.listen()
-
-        if message is None:
-            self.__LOG.error(
-                "No response received after sending ChannelEncryptResponse")
-            return False
-
-        packet = SteamPacket.parse(message)
-
-        if packet.emsg != EMsg.ChannelEncryptResult:
-            self.__LOG.error(
-                "Did not receive ChannelEncryptResult after sending response")
-            return False
-
-        self.__LOG.info(f"Received: {packet.emsg}")
-        return True
+        return await perform_handshake(self)
 
     async def disconnect(self):
         """
         Disconnects from the current server.
         """
+        self.connected = False
+
+        if self._loop_task:
+            self._loop_task.cancel()
+            try:
+                await self._loop_task
+            except asyncio.CancelledError:
+                pass
+            self._loop_task = None
+
         if self.writer:
             try:
                 self.writer.close()
@@ -227,7 +230,64 @@ class CMClient:
             await self.session.close()
             self.session = None
 
-        self.connected = False
+    async def send_protobuf_message(self, emsg: EMsg, message: Message, steam_id: Optional[int] = None):
+        """
+        Sends a protobuf message to the server.
+
+        Args:
+            emsg: The EMsg identifier for the message.
+            message: The protobuf message to send.
+            steam_id: Optional Steam ID to include in the message header.
+        """
+        if not self.connected:
+            self._log.error("The client is not connected")
+            return
+
+        header = cast(Any, CMsgProtoBufHeader())
+        header.steamid = steam_id if steam_id is not None else self.steam_id
+        header.client_sessionid = self.session_id
+
+        header_data = header.SerializeToString()
+        body_data = message.SerializeToString()
+
+        emsg_id = ProtobufManager.add_mask(emsg)
+        data = struct.pack("<I", emsg_id)
+        data += struct.pack("<I", len(header_data))
+        data += header_data
+        data += body_data
+
+        await self.send(data)
+
+    async def send(self, data: bytes) -> bool:
+        """
+        Sends data to the connected server.
+
+        Args:
+            data: The data to send as bytes.
+
+        Returns:
+            True if the data was sent successfully, False otherwise.
+        """
+        if not self.writer:
+            self._log.warning("The client is not connected")
+            return False
+
+        if self.session_key:
+            if self.hmac_secret:
+                data = symmetric_encrypt_HMAC(
+                    data, self.session_key, self.hmac_secret)
+            else:
+                data = symmetric_encrypt(data, self.session_key)
+
+        try:
+            self.writer.write(len(data).to_bytes(
+                4, byteorder="little") + MAGIC_HEADER.encode() + data)
+            await self.writer.drain()
+            return True
+
+        except Exception as e:
+            self._log.error(f"Error sending data: {e}")
+            return False
 
     async def listen(self) -> Optional[bytes]:
         """
@@ -237,7 +297,7 @@ class CMClient:
             The received message as bytes, or None if an error occurs.
         """
         if not self.reader:
-            self.__LOG.warning("Not connected")
+            self._log.warning("Not connected")
             return
 
         try:
@@ -246,15 +306,23 @@ class CMClient:
             magic_header = await self.reader.readexactly(4)
 
             if magic_header != MAGIC_HEADER.encode():
-                self.__LOG.warning("Invalid magic header, disconnecting")
+                self._log.warning("Invalid magic header, disconnecting")
                 return
 
             message = await self.reader.readexactly(length)
+
+            if self.session_key:
+                if self.hmac_secret:
+                    message = symmetric_decrypt_HMAC(
+                        message, self.session_key, self.hmac_secret)
+                else:
+                    message = symmetric_decrypt(message, self.session_key)
+
             return message
 
         except asyncio.IncompleteReadError:
-            self.__LOG.warning("Server closed connection")
+            self._log.warning("Server closed connection")
             return
         except Exception as e:
-            self.__LOG.error(f"Error listening: {e}")
+            self._log.error(f"Error listening: {e}")
             return
