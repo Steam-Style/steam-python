@@ -33,16 +33,18 @@ from steam.client import SteamClient
 async def main():
     client = SteamClient()
 
-    # Connect to Steam
-    await client.connect()
+    try:
+        # Connect to Steam
+        await client.connect()
 
-    # Login anonymously
-    await client.anonymous_login()
+        # Login anonymously
+        await client.anonymous_login()
 
-    # ...
+        # ...
 
-    # Disconnect
-    await client.disconnect()
+    finally:
+        # Disconnect
+        await client.disconnect()
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -56,7 +58,7 @@ To set up the development environment:
 2. Install dependencies:
 
 ```bash
-pip install -r dev_requirements.txt -r requirements.txt
+pip install -e ".[dev]"
 ```
 
 ---
