@@ -13,21 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.x
-      - name: Set cache ID
-        id: cache-id
-        run: echo "date=$(date --utc '+%V')" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ steps.cache-id.outputs.date }}
-          path: ~/.cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install ".[docs]"
-      - run: mkdocs gh-deploy --force
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --group docs
+
+      - name: Deploy
+        run: uv run mkdocs gh-deploy --force
