@@ -3,6 +3,7 @@ import asyncio
 from typing import Optional, Any, TYPE_CHECKING
 from steam.enums.emsgs import EMsg
 from steam.utils.vdf import VDFParser
+from google.protobuf.message import Message
 
 if TYPE_CHECKING:
     class CMsgClientPICSProductInfoRequest:
@@ -36,7 +37,7 @@ class ProductInfoMixin:
 
     if TYPE_CHECKING:
         async def send_protobuf_message(
-            self, emsg: EMsg, _message: Any) -> None: ...
+            self, emsg: EMsg, message: Message, steam_id: Optional[int] = None) -> None: ...
 
         async def wait_for(
             self, event: Any, timeout: Optional[float] = None, check: Optional[Any] = None) -> Any: ...
@@ -67,8 +68,8 @@ class ProductInfoMixin:
 
         try:
             packet = await self.wait_for(EMsg.ClientPICSProductInfoResponse, timeout=timeout)
-
             body = packet.body
+
             if isinstance(body, bytes):
                 response = CMsgClientPICSProductInfoResponse()
                 response.ParseFromString(body)
