@@ -1,7 +1,7 @@
 # Steam Python
 
 ![Documentation](https://img.shields.io/badge/Docs-brightgreen?link=https%3A%2F%2Fpython.steam.style)
-![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A fast and lightweight Python interface for interacting with Steam. Largely inspired by [Valve Python's Steam package](https://github.com/ValvePython/steam) and [the fork by Solstice Game Studios](https://github.com/solsticegamestudios/steam), this library introduces various tweaks to modernize and improve the structure, including complete typing support and modern dependencies. Some logic is also taken from [SteamRE's SteamKit](https://github.com/SteamRE/SteamKit).
@@ -52,14 +52,29 @@ if __name__ == "__main__":
 
 ## Development
 
-To set up the development environment:
+This project uses uv for Python dependency management.
 
-1. Clone the repository.
-2. Install dependencies:
+1. Prerequisites
 
-```bash
-pip install -e ".[dev]"
-```
+   Install `uv` if you haven't already.
+
+   ```bash
+   # macOS/Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # Windows
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. Setup the project:
+
+   Clone the repository and sync the dependencies. uv will automatically download the correct Python version and create a virtual environment for you:
+
+   ```bash
+   git clone https://github.com/Steam-Style/steam-python.git
+   cd steam-python
+   uv sync --all-groups
+   ```
 
 ---
 
