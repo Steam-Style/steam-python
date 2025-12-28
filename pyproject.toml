@@ -22,13 +22,15 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
     "grpcio-tools",
     "pylint",
     "pytest",
     "pytest-asyncio",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
 ]
 
 [tool.setuptools.packages.find]
