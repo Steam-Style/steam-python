@@ -33,21 +33,23 @@ from steam.client import SteamClient
 async def main():
     client = SteamClient()
 
-    # Connect to Steam
-    await client.connect()
+    try:
+        # Connect to Steam
+        await client.connect()
 
-    # Login anonymously
-    await client.anonymous_login()
+        # Login anonymously
+        await client.anonymous_login()
 
-    # Get product info for TF2, Dota 2, and CS2
-    product_info = await client.get_product_info([440, 570, 730])
+        # Get product info for TF2, Dota 2, and CS2
+        product_info = await client.get_product_info([440, 570, 730])
 
-    if product_info:
-        for app_id, parsed_vdf in product_info.items():
-            print(app_id, parsed_vdf["appinfo"]["common"]["name"])
+        if product_info:
+            for app_id, parsed_vdf in product_info.items():
+                print(app_id, parsed_vdf["appinfo"]["common"]["name"])
 
-    # Disconnect
-    await client.disconnect()
+    finally:
+        # Disconnect
+        await client.disconnect()
 
 if __name__ == "__main__":
     asyncio.run(main())
