@@ -150,9 +150,9 @@ class LogonMixin:
         self._stop_heartbeat()
         return EResult.OK
 
-    async def _wait_for_logon_result(self) -> EResult:
+    async def _wait_for_logon_result(self, timeout: int = 20) -> EResult:
         try:
-            packet = await self.wait_for(EMsg.ClientLogOnResponse, timeout=20)
+            packet = await self.wait_for(EMsg.ClientLogOnResponse, timeout=timeout)
             return self._handle_logon_response(packet)
         except asyncio.TimeoutError:
             self._log.error("Timed out waiting for logon response")
