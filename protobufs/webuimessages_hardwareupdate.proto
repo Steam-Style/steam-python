@@ -36,6 +36,7 @@ message CHardwareUpdate_CheckForUpdates_Response {
 
 message CHardwareUpdate_Update_Request {
 	optional string serial_number = 1;
+	optional bool update_all = 2;
 }
 
 message CHardwareUpdate_Update_Response {
