@@ -75,6 +75,12 @@ message AppUpdateInfo {
 	optional uint32 target_build_id = 16;
 }
 
+message AppCloudStatus {
+	optional uint32 status = 1;
+	optional uint32 sync_state = 2;
+	optional double transfer_percentage = 3;
+}
+
 message CMsgRemoteClientAppStatus {
 	message AppStatus {
 		optional uint32 app_id = 1;
@@ -85,6 +91,7 @@ message CMsgRemoteClientAppStatus {
 		optional bool shader_update_available = 6;
 		optional bool workshop_update_avilable = 7;
 		optional bool download_complete = 8;
+		optional .AppCloudStatus cloud_status = 9;
 	}
 
 	message ShortcutInfo {
@@ -209,6 +216,10 @@ message CMsgRemoteClientAcceptEULA {
 	repeated uint32 app_id = 1;
 	repeated string eula_id = 2;
 	repeated uint32 eula_version = 3;
+}
+
+message CMsgRemoteClientAcceptAllEULAs {
+	optional uint32 app_id = 1;
 }
 
 message CMsgRemoteClientGetControllerConfig {

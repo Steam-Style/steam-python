@@ -1394,6 +1394,7 @@ enum EMsg {
 	k_eMsgRemoteClientRestrictAutoUpdatesChanged = 9535;
 	k_eMsgRemoteClientSuspendLanPeerContent = 9536;
 	k_eMsgRemoteClientUpdateDownloadsController = 9537;
+	k_EMsgRemoteClientAcceptAllEULAs = 9538;
 	k_EMsgClientConcurrentSessionsBase = 9600;
 	k_EMsgClientPlayingSessionState = 9600;
 	k_EMsgClientKickPlayingSession = 9601;

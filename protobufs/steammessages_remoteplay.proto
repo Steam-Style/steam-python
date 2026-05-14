@@ -413,6 +413,7 @@ message CStreamingClientCaps {
 	repeated .EStreamColorspace supported_colorspaces = 13;
 	repeated .EStreamAudioCodec supported_audio_codecs = 14;
 	repeated .EStreamVideoCodec supported_video_codecs = 15;
+	optional bool can_toggle_fullscreen = 16;
 }
 
 message CStreamingClientConfig {
