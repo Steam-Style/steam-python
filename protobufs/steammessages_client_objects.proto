@@ -13,6 +13,12 @@ enum ECloudPendingRemoteOperation {
 	k_ECloudPendingRemoteOperationAppSessionSuspended = 4;
 }
 
+enum EDisplayManagerRGBRange {
+	k_EDisplayManagerRGBRange_Automatic = 0;
+	k_EDisplayManagerRGBRange_Full = 1;
+	k_EDisplayManagerRGBRange_Limited = 2;
+}
+
 enum ESteamDeckKeyboardLayout {
 	k_ESteamDeckKeyboardLayout_QWERTY = 0;
 	k_ESteamDeckKeyboardLayout_Bulgarian = 1;
@@ -506,6 +512,7 @@ message CMsgSystemDisplay {
 	optional bool is_hdr_capable = 16;
 	optional bool is_hdr_output_active = 17;
 	repeated int32 supported_refresh_rates = 18;
+	optional .EDisplayManagerRGBRange rgb_range = 19 [default = k_EDisplayManagerRGBRange_Automatic];
 }
 
 message CMsgSystemDisplayManagerState {
@@ -517,6 +524,7 @@ message CMsgSystemDisplayManagerState {
 message CMsgSystemDisplayManagerSetMode {
 	optional int32 display_id = 1;
 	optional int32 mode_id = 2;
+	optional .EDisplayManagerRGBRange rgb_range = 3 [default = k_EDisplayManagerRGBRange_Automatic];
 }
 
 message CMsgSystemManagerSettings {

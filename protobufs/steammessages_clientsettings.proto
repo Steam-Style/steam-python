@@ -295,7 +295,12 @@ message CMsgClientSettings {
 	optional bool steamos_vrs_enabled = 22015 [(setting_store) = k_EClientSettingStore_ConfigStore_UserLocal, (setting_name) = "SteamOS/VRSEnabled", (setting_default_bool) = false, (setting_profile_mode) = k_ESettingProfileMode_PerGame];
 	optional bool steamos_separate_led_colors = 22016 [(setting_store) = k_EClientSettingStore_ConfigStore_UserLocal, (setting_name) = "SteamOS/SeparaeLEDColors", (setting_default_bool) = false];
 	optional bool steamos_wifi_reload_wifi_driver_on_sleep = 22017 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/WifiReloadDriverOnSleep", (setting_default_bool) = false];
-	optional bool steamos_wifi_power_management_enabled = 220018 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/WifiPowerManagement", (setting_default_bool) = false];
+	optional bool steamos_wifi_power_management_enabled = 220018 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/WifiPowerManagement", (setting_default_bool) = true];
+	optional bool steamos_cec_control = 22019 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/CECControl", (setting_default_bool) = true];
+	optional bool steamos_cec_suspend_tv = 22020 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/CECSuspendTV", (setting_default_bool) = true];
+	optional bool steamos_cec_suspend_device = 22021 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/CECSuspendDevice", (setting_default_bool) = true];
+	optional bool steamos_cec_wake_tv = 22022 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/CECWakeTV", (setting_default_bool) = true];
+	optional bool steamos_cec_wake_device = 22023 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SteamOS/CECWakeDevice", (setting_default_bool) = true];
 	optional bool setting_validation_bool = 23001 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SettingValidation/DummyBool"];
 	optional .EHDRVisualization setting_validation_enum = 23002 [default = k_EHDRVisualization_None, (setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SettingValidation/DummyEnum"];
 	optional int32 setting_validation_int32 = 23003 [(setting_store) = k_EClientSettingStore_ConfigStore_Install, (setting_name) = "SettingValidation/DummyInt32"];

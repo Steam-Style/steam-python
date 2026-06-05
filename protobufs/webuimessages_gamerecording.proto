@@ -508,6 +508,16 @@ message CGameRecording_SwitchBackgroundRecordingGame_Request {
 message CGameRecording_SwitchBackgroundRecordingGame_Response {
 }
 
+message CGameRecording_GetState_Request {
+}
+
+message CGameRecording_GetState_Response {
+	optional bool is_h265_enabled = 1;
+}
+
+message CGameRecording_StateChanged_Notification {
+}
+
 service GameRecording {
 	option (webui_service_execution_site) = k_EClientExecutionSiteSteamUI;
 
@@ -555,4 +565,6 @@ service GameRecording {
 	rpc ManuallyDeleteRecordingsForApps (.CGameRecording_ManuallyDeleteRecordingsForApps_Request) returns (.CGameRecording_ManuallyDeleteRecordingsForApps_Response);
 	rpc GetTotalDiskSpaceUsage (.CGameRecording_GetTotalDiskSpaceUsage_Request) returns (.CGameRecording_GetTotalDiskSpaceUsage_Response);
 	rpc SwitchBackgroundRecordingGame (.CGameRecording_SwitchBackgroundRecordingGame_Request) returns (.CGameRecording_SwitchBackgroundRecordingGame_Response);
+	rpc GetState (.CGameRecording_GetState_Request) returns (.CGameRecording_GetState_Response);
+	rpc NotifyStateChanged (.CGameRecording_StateChanged_Notification) returns (.WebUINoResponse);
 }

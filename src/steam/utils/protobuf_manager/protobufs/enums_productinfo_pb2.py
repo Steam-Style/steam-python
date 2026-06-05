@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x65nums_productinfo.proto*\xa2\x02\n\x14\x45\x43ontentDescriptorID\x12.\n*k_EContentDescriptor_NudityOrSexualContent\x10\x01\x12/\n+k_EContentDescriptor_FrequentViolenceOrGore\x10\x02\x12/\n+k_EContentDescriptor_AdultOnlySexualContent\x10\x03\x12\x30\n,k_EContentDescriptor_GratuitousSexualContent\x10\x04\x12)\n%k_EContentDescriptor_AnyMatureContent\x10\x05\x12\x1b\n\x17k_EContentDescriptorMAX\x10\x06\x42\x02H\x01')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17\x65nums_productinfo.proto*\xa2\x02\n\x14\x45\x43ontentDescriptorID\x12.\n*k_EContentDescriptor_NudityOrSexualContent\x10\x01\x12/\n+k_EContentDescriptor_FrequentViolenceOrGore\x10\x02\x12/\n+k_EContentDescriptor_AdultOnlySexualContent\x10\x03\x12\x30\n,k_EContentDescriptor_GratuitousSexualContent\x10\x04\x12)\n%k_EContentDescriptor_AnyMatureContent\x10\x05\x12\x1b\n\x17k_EContentDescriptorMAX\x10\x06*\x9d\x04\n\rERatingAgency\x12\x1b\n\x17k_ERatingAgency_Invalid\x10\x00\x12\x18\n\x14k_ERatingAgency_ESRB\x10\x01\x12\x18\n\x14k_ERatingAgency_PEGI\x10\x02\x12\x18\n\x14k_ERatingAgency_BBFC\x10\x03\x12\x17\n\x13k_ERatingAgency_USK\x10\x04\x12\x1b\n\x17k_ERatingAgency_OFLC_AU\x10\x05\x12\x1b\n\x17k_ERatingAgency_OFLC_NZ\x10\x06\x12\x18\n\x14k_ERatingAgency_CERO\x10\x07\x12\x18\n\x14k_ERatingAgency_GRAC\x10\x08\x12\x1a\n\x16k_ERatingAgency_GMEDIA\x10\t\x12\x19\n\x15k_ERatingAgency_DEJUS\x10\n\x12\x18\n\x14k_ERatingAgency_IMDA\x10\x0b\x12\x17\n\x13k_ERatingAgency_FPB\x10\x0c\x12\x19\n\x15k_ERatingAgency_TESRI\x10\r\x12\x18\n\x14k_ERatingAgency_RARS\x10\x0e\x12\x19\n\x15k_ERatingAgency_AGCOM\x10\x0f\x12\x18\n\x14k_ERatingAgency_IGRS\x10\x10\x12!\n\x1dk_ERatingAgency_Steam_Germany\x10\x11\x12#\n\x1fk_ERatingAgency_Steam_Australia\x10\x12\x42\x02H\x01')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,4 +34,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._serialized_options = b'H\001'
   _globals['_ECONTENTDESCRIPTORID']._serialized_start=28
   _globals['_ECONTENTDESCRIPTORID']._serialized_end=318
+  _globals['_ERATINGAGENCY']._serialized_start=321
+  _globals['_ERATINGAGENCY']._serialized_end=862
 # @@protoc_insertion_point(module_scope)
