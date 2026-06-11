@@ -27,7 +27,7 @@ import steammessages_base_pb2 as steammessages__base__pb2
 import webuimessages_base_pb2 as webuimessages__base__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"webuimessages_hardwareupdate.proto\x1a\x0b\x65nums.proto\x1a\x18steammessages_base.proto\x1a\x18webuimessages_base.proto\"\"\n CHardwareUpdate_GetState_Request\"_\n!CHardwareUpdate_GetState_Response\x12\x1c\n\x14is_updater_supported\x18\x01 \x01(\x08\x12\x1c\n\x14has_seen_controllers\x18\x02 \x01(\x08\"+\n)CHardwareUpdate_StateChanged_Notification\")\n\'CHardwareUpdate_CheckForUpdates_Request\"\xc0\x01\n\x1b\x43MsgAvailableHardwareUpdate\x12\x34\n\x05\x65type\x18\x01 \x01(\x0e\x32\x1a.EHardwareUpdateDeviceType:\tTriton_BL\x12\x13\n\x0bhardware_id\x18\x02 \x01(\r\x12\x15\n\rserial_number\x18\x03 \x01(\t\x12\x12\n\ncurrent_ts\x18\x04 \x01(\t\x12\x11\n\tupdate_ts\x18\x05 \x01(\t\x12\x18\n\x10mandatory_update\x18\x06 \x01(\x08\"Y\n(CHardwareUpdate_CheckForUpdates_Response\x12-\n\x07updates\x18\x01 \x03(\x0b\x32\x1c.CMsgAvailableHardwareUpdate\"K\n\x1e\x43HardwareUpdate_Update_Request\x12\x15\n\rserial_number\x18\x01 \x01(\t\x12\x12\n\nupdate_all\x18\x02 \x01(\x08\"!\n\x1f\x43HardwareUpdate_Update_Response\"?\n+CHardwareUpdate_UpdateProgress_Notification\x12\x10\n\x08progress\x18\x01 \x01(\x05\"1\n/CHardwareUpdate_UpdateStateChanged_Notification\">\n%CHardwareUpdate_PrepForUpdate_Request\x12\x15\n\rserial_number\x18\x01 \x01(\t\"(\n&CHardwareUpdate_PrepForUpdate_Response*\x8b\x01\n\x19\x45HardwareUpdateDeviceType\x12\r\n\tTriton_BL\x10\x00\x12\x0e\n\nProteus_BL\x10\x01\x12\x0e\n\nTriton_USB\x10\x02\x12\x0e\n\nTriton_BLE\x10\x03\x12\x0e\n\nTriton_ESB\x10\x04\x12\x0f\n\x0bProteus_USB\x10\x05\x12\x0e\n\nNereid_USB\x10\x06\x32\x8c\x05\n\x0eHardwareUpdate\x12Q\n\x08GetState\x12!.CHardwareUpdate_GetState_Request\x1a\".CHardwareUpdate_GetState_Response\x12R\n\x12NotifyStateChanged\x12*.CHardwareUpdate_StateChanged_Notification\x1a\x10.WebUINoResponse\x12\x66\n\x0f\x43heckForUpdates\x12(.CHardwareUpdate_CheckForUpdates_Request\x1a).CHardwareUpdate_CheckForUpdates_Response\x12`\n\rPrepForUpdate\x12&.CHardwareUpdate_PrepForUpdate_Request\x1a\'.CHardwareUpdate_PrepForUpdate_Response\x12K\n\x06Update\x12\x1f.CHardwareUpdate_Update_Request\x1a .CHardwareUpdate_Update_Response\x12V\n\x14NotifyUpdateProgress\x12,.CHardwareUpdate_UpdateProgress_Notification\x1a\x10.WebUINoResponse\x12^\n\x18NotifyUpdateStateChanged\x12\x30.CHardwareUpdate_UpdateStateChanged_Notification\x1a\x10.WebUINoResponse\x1a\x04\x80\x97\"\x01\x42\x05H\x01\x80\x01\x01')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"webuimessages_hardwareupdate.proto\x1a\x0b\x65nums.proto\x1a\x18steammessages_base.proto\x1a\x18webuimessages_base.proto\"\"\n CHardwareUpdate_GetState_Request\"_\n!CHardwareUpdate_GetState_Response\x12\x1c\n\x14is_updater_supported\x18\x01 \x01(\x08\x12\x1c\n\x14has_seen_controllers\x18\x02 \x01(\x08\"+\n)CHardwareUpdate_StateChanged_Notification\")\n\'CHardwareUpdate_CheckForUpdates_Request\"\xd8\x01\n\x1b\x43MsgAvailableHardwareUpdate\x12\x34\n\x05\x65type\x18\x01 \x01(\x0e\x32\x1a.EHardwareUpdateDeviceType:\tTriton_BL\x12\x15\n\rserial_number\x18\x03 \x01(\t\x12\x12\n\ncurrent_ts\x18\x04 \x01(\x04\x12\x11\n\tupdate_ts\x18\x05 \x01(\x04\x12/\n\x08priority\x18\x06 \x01(\x0e\x32\x18.EHardwareUpdatePriority:\x03Low\x12\x14\n\x0cis_downgrade\x18\x07 \x01(\x08\"Y\n(CHardwareUpdate_CheckForUpdates_Response\x12-\n\x07updates\x18\x01 \x03(\x0b\x32\x1c.CMsgAvailableHardwareUpdate\"K\n\x1e\x43HardwareUpdate_Update_Request\x12\x15\n\rserial_number\x18\x01 \x01(\t\x12\x12\n\nupdate_all\x18\x02 \x01(\x08\"!\n\x1f\x43HardwareUpdate_Update_Response\"?\n+CHardwareUpdate_UpdateProgress_Notification\x12\x10\n\x08progress\x18\x01 \x01(\x05\"1\n/CHardwareUpdate_UpdateStateChanged_Notification\">\n%CHardwareUpdate_PrepForUpdate_Request\x12\x15\n\rserial_number\x18\x01 \x01(\t\"(\n&CHardwareUpdate_PrepForUpdate_Response\"*\n(CHardwareUpdate_EnumerateDevices_Request\"\xda\x01\n)CHardwareUpdate_EnumerateDevices_Response\x12\x42\n\x07\x64\x65vices\x18\x01 \x03(\x0b\x32\x31.CHardwareUpdate_EnumerateDevices_Response.Device\x1ai\n\x06\x44\x65vice\x12\x34\n\x05\x65type\x18\x01 \x01(\x0e\x32\x1a.EHardwareUpdateDeviceType:\tTriton_BL\x12\x15\n\rserial_number\x18\x02 \x01(\t\x12\x12\n\ncurrent_ts\x18\x03 \x01(\x04*\x8b\x01\n\x19\x45HardwareUpdateDeviceType\x12\r\n\tTriton_BL\x10\x00\x12\x0e\n\nProteus_BL\x10\x01\x12\x0e\n\nTriton_USB\x10\x02\x12\x0e\n\nTriton_BLE\x10\x03\x12\x0e\n\nTriton_ESB\x10\x04\x12\x0f\n\x0bProteus_USB\x10\x05\x12\x0e\n\nNereid_USB\x10\x06*K\n\x17\x45HardwareUpdatePriority\x12\x07\n\x03Low\x10\x00\x12\n\n\x06Normal\x10\x01\x12\r\n\tSuggested\x10\x02\x12\x0c\n\x08Required\x10\x03\x32\xf7\x05\n\x0eHardwareUpdate\x12Q\n\x08GetState\x12!.CHardwareUpdate_GetState_Request\x1a\".CHardwareUpdate_GetState_Response\x12R\n\x12NotifyStateChanged\x12*.CHardwareUpdate_StateChanged_Notification\x1a\x10.WebUINoResponse\x12i\n\x10\x45numerateDevices\x12).CHardwareUpdate_EnumerateDevices_Request\x1a*.CHardwareUpdate_EnumerateDevices_Response\x12\x66\n\x0f\x43heckForUpdates\x12(.CHardwareUpdate_CheckForUpdates_Request\x1a).CHardwareUpdate_CheckForUpdates_Response\x12`\n\rPrepForUpdate\x12&.CHardwareUpdate_PrepForUpdate_Request\x1a\'.CHardwareUpdate_PrepForUpdate_Response\x12K\n\x06Update\x12\x1f.CHardwareUpdate_Update_Request\x1a .CHardwareUpdate_Update_Response\x12V\n\x14NotifyUpdateProgress\x12,.CHardwareUpdate_UpdateProgress_Notification\x1a\x10.WebUINoResponse\x12^\n\x18NotifyUpdateStateChanged\x12\x30.CHardwareUpdate_UpdateStateChanged_Notification\x1a\x10.WebUINoResponse\x1a\x04\x80\x97\"\x01\x42\x05H\x01\x80\x01\x01')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,8 +37,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._serialized_options = b'H\001\200\001\001'
   _globals['_HARDWAREUPDATE']._loaded_options = None
   _globals['_HARDWAREUPDATE']._serialized_options = b'\200\227\"\001'
-  _globals['_EHARDWAREUPDATEDEVICETYPE']._serialized_start=945
-  _globals['_EHARDWAREUPDATEDEVICETYPE']._serialized_end=1084
+  _globals['_EHARDWAREUPDATEDEVICETYPE']._serialized_start=1234
+  _globals['_EHARDWAREUPDATEDEVICETYPE']._serialized_end=1373
+  _globals['_EHARDWAREUPDATEPRIORITY']._serialized_start=1375
+  _globals['_EHARDWAREUPDATEPRIORITY']._serialized_end=1450
   _globals['_CHARDWAREUPDATE_GETSTATE_REQUEST']._serialized_start=103
   _globals['_CHARDWAREUPDATE_GETSTATE_REQUEST']._serialized_end=137
   _globals['_CHARDWAREUPDATE_GETSTATE_RESPONSE']._serialized_start=139
@@ -48,21 +50,27 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_REQUEST']._serialized_start=281
   _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_REQUEST']._serialized_end=322
   _globals['_CMSGAVAILABLEHARDWAREUPDATE']._serialized_start=325
-  _globals['_CMSGAVAILABLEHARDWAREUPDATE']._serialized_end=517
-  _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_RESPONSE']._serialized_start=519
-  _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_RESPONSE']._serialized_end=608
-  _globals['_CHARDWAREUPDATE_UPDATE_REQUEST']._serialized_start=610
-  _globals['_CHARDWAREUPDATE_UPDATE_REQUEST']._serialized_end=685
-  _globals['_CHARDWAREUPDATE_UPDATE_RESPONSE']._serialized_start=687
-  _globals['_CHARDWAREUPDATE_UPDATE_RESPONSE']._serialized_end=720
-  _globals['_CHARDWAREUPDATE_UPDATEPROGRESS_NOTIFICATION']._serialized_start=722
-  _globals['_CHARDWAREUPDATE_UPDATEPROGRESS_NOTIFICATION']._serialized_end=785
-  _globals['_CHARDWAREUPDATE_UPDATESTATECHANGED_NOTIFICATION']._serialized_start=787
-  _globals['_CHARDWAREUPDATE_UPDATESTATECHANGED_NOTIFICATION']._serialized_end=836
-  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_REQUEST']._serialized_start=838
-  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_REQUEST']._serialized_end=900
-  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_RESPONSE']._serialized_start=902
-  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_RESPONSE']._serialized_end=942
-  _globals['_HARDWAREUPDATE']._serialized_start=1087
-  _globals['_HARDWAREUPDATE']._serialized_end=1739
+  _globals['_CMSGAVAILABLEHARDWAREUPDATE']._serialized_end=541
+  _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_RESPONSE']._serialized_start=543
+  _globals['_CHARDWAREUPDATE_CHECKFORUPDATES_RESPONSE']._serialized_end=632
+  _globals['_CHARDWAREUPDATE_UPDATE_REQUEST']._serialized_start=634
+  _globals['_CHARDWAREUPDATE_UPDATE_REQUEST']._serialized_end=709
+  _globals['_CHARDWAREUPDATE_UPDATE_RESPONSE']._serialized_start=711
+  _globals['_CHARDWAREUPDATE_UPDATE_RESPONSE']._serialized_end=744
+  _globals['_CHARDWAREUPDATE_UPDATEPROGRESS_NOTIFICATION']._serialized_start=746
+  _globals['_CHARDWAREUPDATE_UPDATEPROGRESS_NOTIFICATION']._serialized_end=809
+  _globals['_CHARDWAREUPDATE_UPDATESTATECHANGED_NOTIFICATION']._serialized_start=811
+  _globals['_CHARDWAREUPDATE_UPDATESTATECHANGED_NOTIFICATION']._serialized_end=860
+  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_REQUEST']._serialized_start=862
+  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_REQUEST']._serialized_end=924
+  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_RESPONSE']._serialized_start=926
+  _globals['_CHARDWAREUPDATE_PREPFORUPDATE_RESPONSE']._serialized_end=966
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_REQUEST']._serialized_start=968
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_REQUEST']._serialized_end=1010
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_RESPONSE']._serialized_start=1013
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_RESPONSE']._serialized_end=1231
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_RESPONSE_DEVICE']._serialized_start=1126
+  _globals['_CHARDWAREUPDATE_ENUMERATEDEVICES_RESPONSE_DEVICE']._serialized_end=1231
+  _globals['_HARDWAREUPDATE']._serialized_start=1453
+  _globals['_HARDWAREUPDATE']._serialized_end=2212
 # @@protoc_insertion_point(module_scope)
